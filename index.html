@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Sky Will Rain Iron</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080808;
+      --bg-mid:   #0e0e0e;
+      --text:     #e8e0d0;
+      --gold:     #c9a84c;
+      --gold-dim: rgba(201,168,76,0.18);
+      --border:   rgba(232,224,208,0.09);
+      --border-md:rgba(232,224,208,0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'EB Garamond', Georgia, serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Grain overlay ─────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    /* ── Scrollbar ─────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.25); }
+
+    /* ═══════════════════════════════════════════════
+       LOADING SCREEN
+    ═══════════════════════════════════════════════ */
+    #loading {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      z-index: 9990;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      transition: opacity 1s ease;
+    }
+    #loading.fade-out { opacity: 0; pointer-events: none; }
+
+    #loading-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.1rem, 3vw, 2rem);
+      font-weight: 400;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--text);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.05em;
+      min-height: 3rem;
+    }
+    #loading-title .lt-char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    #loading-title .lt-char.space { width: 0.4em; }
+    #loading-title .lt-char.show { opacity: 1; transform: translateY(0); }
+
+    .loading-bar-wrap {
+      width: 180px;
+      height: 1px;
+      background: var(--border-md);
+      margin-top: 3rem;
+      overflow: hidden;
+    }
+    .loading-bar-fill {
+      height: 100%;
+      background: var(--gold);
+      width: 0;
+      animation: loadBar 2.2s cubic-bezier(0.4,0,0.2,1) 0.3s forwards;
+    }
+    @keyframes loadBar { to { width: 100%; } }
+
+    .loading-sub {
+      margin-top: 1rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      color: rgba(232,224,208,0.2);
+      text-transform: uppercase;
+    }
+
+    /* ═══════════════════════════════════════════════
+       PAGES
+    ═══════════════════════════════════════════════ */
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: block; }
+
+    /* ── Persistent Nav ────────────────────────────── */
+    #site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      padding: 1.4rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(8,8,8,0.98) 0%, transparent 100%);
+      transition: opacity 0.4s;
+      pointer-events: none;
+      opacity: 0;
+    }
+    #site-nav.visible { opacity: 1; pointer-events: all; }
+
+    .nav-logo {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      cursor: pointer;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .nav-logo:hover { opacity: 1; }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(232,224,208,0.38);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.25s;
+    }
+    .nav-links a:hover { color: rgba(232,224,208,0.75); }
+    .nav-links a.current { color: var(--gold); opacity: 0.7; }
+
+    /* ── Music Player ──────────────────────────────── */
+    #music-controls {
+      position: fixed;
+      bottom: 1.8rem;
+      right: 2rem;
+      z-index: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.45rem;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    #music-controls.visible { opacity: 1; }
+
+    .music-track-label {
+      font-style: italic;
+      font-size: 0.65rem;
+      color: rgba(232,224,208,0.25);
+      letter-spacing: 0.06em;
+    }
+    .music-player {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.45rem 0.8rem;
+      border: 1px solid var(--border);
+      background: rgba(8,8,8,0.82);
+      backdrop-filter: blur(8px);
+    }
+    .m-btn {
+      background: none; border: none;
+      color: rgba(232,224,208,0.45);
+      cursor: pointer; font-size: 0.85rem;
+      line-height: 1;
+      transition: color 0.2s;
+      padding: 0;
+    }
+    .m-btn:hover { color: var(--text); }
+    .m-btn.active { color: var(--gold); }
+    .m-divider { width: 1px; height: 14px; background: var(--border-md); }
+    .vol-wrap { display: flex; align-items: center; gap: 0.4rem; }
+    .vol-icon { font-size: 0.7rem; color: rgba(232,224,208,0.3); }
+    input[type=range].vol-slider {
+      -webkit-appearance: none;
+      width: 52px; height: 1px;
+      background: var(--border-md);
+      outline: none; cursor: pointer;
+    }
+    input[type=range].vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      cursor: pointer;
+    }
+
+    /* ── Typewriter indicator ──────────────────────── */
+    #tw-indicator {
+      position: fixed;
+      bottom: 1.8rem; left: 2rem;
+      z-index: 600;
+      font-style: italic;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      color: rgba(232,224,208,0.18);
+      transition: opacity 0.4s;
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    #tw-indicator.visible { opacity: 1; }
+    #tw-indicator.off { opacity: 0; }
+    .tw-cursor-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.4;
+      animation: twpulse 1.6s ease-in-out infinite;
+    }
+    @keyframes twpulse {
+      0%,100% { opacity: 0.2; }
+      50% { opacity: 0.7; }
+    }
+
+    /* ── Scroll reveal ─────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal.d1 { transition-delay: 0.1s; }
+    .reveal.d2 { transition-delay: 0.2s; }
+    .reveal.d3 { transition-delay: 0.3s; }
+    .reveal.d4 { transition-delay: 0.45s; }
+
+    /* ═══════════════════════════════════════════════
+       PAGE 2 — LANDING
+    ═══════════════════════════════════════════════ */
+    #page-landing { position: relative; overflow: hidden; }
+
+    #particles-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .landing-hero {
+      position: relative; z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 2rem 4rem;
+      text-align: center;
+    }
+
+    .landing-eyebrow {
+      font-family: 'EB Garamond', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.55;
+      margin-bottom: 2.2rem;
+    }
+
+    .landing-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 6.5vw, 5.5rem);
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: 0.03em;
+      margin-bottom: 0;
+    }
+    .landing-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .landing-rule {
+      width: 1px;
+      height: 55px;
+      background: linear-gradient(to bottom, transparent, rgba(201,168,76,0.5), transparent);
+      margin: 3rem auto;
+    }
+
+    /* Nav grid */
+    .landing-nav-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      max-width: 780px;
+      width: 100%;
+      background: var(--border);
+    }
+
+    .lnav-item {
+      position: relative;
+      background: var(--bg);
+      padding: 2.8rem 2.5rem 2.2rem;
+      cursor: pointer;
+      text-align: left;
+      overflow: hidden;
+      text-decoration: none;
+      display: block;
+      transition: background 0.35s;
+    }
+    .lnav-item::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity 0.35s;
+    }
+    .lnav-item::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.4s ease;
+    }
+    .lnav-item:hover::before { opacity: 1; }
+    .lnav-item:hover::after  { width: 100%; }
+    .lnav-item:hover .lnav-num   { color: var(--gold); }
+    .lnav-item:hover .lnav-title { color: var(--text); }
+    .lnav-item:hover .lnav-arrow { opacity: 1; transform: translateX(0); }
+
+    .lnav-num {
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      color: rgba(232,224,208,0.18);
+      margin-bottom: 1.1rem;
+      transition: color 0.3s;
+      font-family: 'Cinzel', serif;
+    }
+    .lnav-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 400;
+      color: rgba(232,224,208,0.62);
+      margin-bottom: 0.55rem;
+      transition: color 0.3s;
+    }
+    .lnav-desc {
+      font-size: 0.78rem;
+      line-height: 1.65;
+      color: rgba(232,224,208,0.25);
+    }
+    .lnav-arrow {
+      position: absolute;
+      bottom: 1.4rem; right: 1.4rem;
+      color: var(--gold);
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.3s, transform 0.3s;
+      font-size: 0.9rem;
+    }
+
+    /* ═══════════════════════════════════════════════
+       INTERIOR SHARED LAYOUT
+    ═══════════════════════════════════════════════ */
+    .interior {
+      padding: 7rem 3rem 6rem;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .page-eyebrow {
+      font-size: 0.62rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.5;
+      margin-bottom: 0.85rem;
+    }
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.9rem, 4.5vw, 3.2rem);
+      font-weight: 400;
+      line-height: 1.15;
+    }
+    .page-rule {
+      width: 48px; height: 1px;
+      background: var(--gold);
+      opacity: 0.35;
+      margin: 1.8rem 0 2.2rem;
+    }
+    .page-intro {
+      font-size: 1.05rem;
+      line-height: 1.95;
+      color: rgba(232,224,208,0.58);
+      max-width: 530px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 4rem;
+      align-items: start;
+      margin-top: 3.5rem;
+    }
+
+    /* Section label */
+    .s-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.45;
+      margin-bottom: 1.2rem;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* Entry list */
+    .elist { list-style: none; border-top: 1px solid var(--border); }
+    .elist li { border-bottom: 1px solid var(--border); }
+    .elink {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 0;
+      color: rgba(232,224,208,0.5);
+      text-decoration: none;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: color 0.22s, padding-left 0.22s;
+    }
+    .elink:hover { color: var(--text); padding-left: 0.4rem; }
+    .elink-arr {
+      color: var(--gold);
+      opacity: 0;
+      font-size: 0.75rem;
+      transition: opacity 0.22s;
+    }
+    .elink:hover .elink-arr { opacity: 1; }
+
+    /* Sidebar box */
+    .side-box {
+      border: 1px solid var(--border);
+      padding: 1.6rem;
+      background: rgba(232,224,208,0.015);
+    }
+    .side-box + .side-box { margin-top: 1rem; }
+    .side-box-title {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.42;
+      margin-bottom: 1.1rem;
+      font-family: 'Cinzel', serif;
+    }
+    .side-list { list-style: none; }
+    .side-list li { margin-bottom: 0.5rem; }
+    .side-list a {
+      font-size: 0.82rem;
+      color: rgba(232,224,208,0.38);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      cursor: pointer;
+    }
+    .side-list a::before { content: '—'; color: var(--gold); opacity: 0.28; font-size: 0.65rem; }
+    .side-list a:hover { color: rgba(232,224,208,0.75); }
+    .side-list a.sub { padding-left: 1.2rem; font-size: 0.77rem; }
+    .side-divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+    /* Primer block */
+    .primer {
+      border-left: 1px solid var(--gold-dim);
+      padding: 1.4rem 1.8rem;
+      margin: 2.5rem 0;
+      background: rgba(201,168,76,0.018);
+    }
+    .primer-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.45;
+      margin-bottom: 0.85rem;
+    }
+    .primer-text {
+      font-size: 1rem;
+      line-height: 1.9;
+      color: rgba(232,224,208,0.48);
+      font-style: italic;
+    }
+
+    /* ═══════════════════════════════════════════════
+       PAGE 3 — WORLD MAP
+    ═══════════════════════════════════════════════ */
+    .map-wrap {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 2.5rem;
+      background: #050505;
+    }
+    .map-wrap svg {
+      width: 100%; height: 100%;
+    }
+    .map-label {
+      position: absolute;
+      bottom: 1rem; right: 1rem;
+      font-style: italic;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: rgba(232,224,208,0.15);
+    }
+
+    /* ═══════════════════════════════════════════════
+       PAGE 4 — TIMELINE
+    ═══════════════════════════════════════════════ */
+    .timeline-veil {
+      border: 1px solid var(--border);
+      padding: 3.5rem 2rem;
+      text-align: center;
+      margin: 2rem 0;
+    }
+    .veil-text {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      line-height: 1.85;
+      color: rgba(232,224,208,0.18);
+    }
+    .veil-separator {
+      width: 40px; height: 1px;
+      background: var(--gold-dim);
+      margin: 1.8rem auto;
+    }
+
+    .timeline-fragments { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 0; }
+    .t-frag {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+      padding: 1.2rem 0;
+      border-bottom: 1px solid var(--border);
+      opacity: 0.38;
+    }
+    .t-frag:hover { opacity: 0.6; transition: opacity 0.3s; }
+    .t-date {
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+      margin-top: 0.15rem;
+    }
+    .t-content { font-size: 0.88rem; line-height: 1.65; }
+    .redact {
+      display: inline-block;
+      background: rgba(232,224,208,0.12);
+      color: transparent;
+      user-select: none;
+      border-radius: 1px;
+    }
+    .dormalan-note {
+      margin-top: 2.5rem;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      background: rgba(201,168,76,0.012);
+    }
+    .dormalan-note p {
+      font-style: italic;
+      font-size: 0.88rem;
+      line-height: 1.8;
+      color: rgba(232,224,208,0.35);
+    }
+
+    /* ═══════════════════════════════════════════════
+       PAGE 5 — READ ONLINE
+    ═══════════════════════════════════════════════ */
+    .read-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--border);
+      margin-top: 3rem;
+    }
+    .read-card {
+      background: var(--bg);
+      padding: 2.5rem 2.2rem;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+      text-decoration: none;
+      display: block;
+    }
+    .read-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 2px; height: 0;
+      background: var(--gold);
+      transition: height 0.4s ease;
+    }
+    .read-card:hover { background: rgba(232,224,208,0.018); }
+    .read-card:hover::before { height: 100%; }
+    .read-card:hover .rc-title { color: var(--text); }
+
+    .rc-icon { font-size: 1.1rem; margin-bottom: 1.2rem; opacity: 0.35; }
+    .rc-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin-bottom: 0.55rem;
+      color: rgba(232,224,208,0.7);
+      transition: color 0.3s;
+    }
+    .rc-desc {
+      font-size: 0.78rem;
+      line-height: 1.7;
+      color: rgba(232,224,208,0.28);
+    }
+
+    /* ═══════════════════════════════════════════════
+       PAGE 6 — BLOG
+    ═══════════════════════════════════════════════ */
+    .blog-header {
+      text-align: center;
+      padding-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 3rem;
+    }
+    .blog-subtitle {
+      font-style: italic;
+      color: rgba(232,224,208,0.22);
+      font-size: 0.88rem;
+      margin-top: 0.6rem;
+    }
+    .blog-most-recent {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.8rem 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .blog-mr-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.4;
+      margin-bottom: 0.5rem;
+    }
+    .blog-mr-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: rgba(232,224,208,0.6);
+      transition: color 0.25s;
+    }
+    .blog-most-recent:hover .blog-mr-title { color: var(--text); }
+    .blog-mr-arr { color: var(--gold); opacity: 0.5; font-size: 0.9rem; }
+
+    .blog-entry-list { margin-top: 2rem; }
+    .blog-entry {
+      padding: 1.2rem 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: padding-left 0.2s;
+    }
+    .blog-entry:hover { padding-left: 0.4rem; }
+    .blog-entry-date {
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      opacity: 0.35;
+      margin-bottom: 0.35rem;
+      font-family: 'Cinzel', serif;
+    }
+    .blog-entry-title {
+      font-size: 1rem;
+      color: rgba(232,224,208,0.48);
+      transition: color 0.2s;
+    }
+    .blog-entry:hover .blog-entry-title { color: rgba(232,224,208,0.75); }
+
+    /* ═══════════════════════════════════════════════
+       MISC
+    ═══════════════════════════════════════════════ */
+    .mt1 { margin-top: 1rem; }
+    .mt2 { margin-top: 2rem; }
+    .mt3 { margin-top: 3rem; }
+    .footnote {
+      font-size: 0.75rem;
+      color: rgba(232,224,208,0.22);
+      font-style: italic;
+      line-height: 1.7;
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Typewriter effect class */
+    .tw-text { }
+    .tw-char { opacity: 0; transition: opacity 0.015s; }
+    .tw-char.shown { opacity: 1; }
+
+    @media (max-width: 720px) {
+      .landing-nav-grid { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .read-grid { grid-template-columns: 1fr; }
+      .interior { padding: 6rem 1.5rem 4rem; }
+      #site-nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  LOADING SCREEN                                 -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="loading">
+  <div id="loading-title"></div>
+  <div class="loading-bar-wrap">
+    <div class="loading-bar-fill"></div>
+  </div>
+  <div class="loading-sub">Archive Initializing</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  PERSISTENT NAV                                 -->
+<!-- ═══════════════════════════════════════════════ -->
+<nav id="site-nav">
+  <a class="nav-logo" onclick="navigateTo('landing')">TSWRI</a>
+  <ul class="nav-links">
+    <li><a onclick="navigateTo('worldmap')"  id="nl-worldmap">World Map</a></li>
+    <li><a onclick="navigateTo('timeline')"  id="nl-timeline">Timeline</a></li>
+    <li><a onclick="navigateTo('read')"      id="nl-read">Read Online</a></li>
+    <li><a onclick="navigateTo('blog')"      id="nl-blog">Blog</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  MUSIC CONTROLS                                 -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="music-controls">
+  <span class="music-track-label" id="track-label">Adagio in G minor — Bach</span>
+  <div class="music-player">
+    <button class="m-btn active" id="play-btn" title="Play / Pause">&#9654;</button>
+    <div class="m-divider"></div>
+    <button class="m-btn" id="mute-btn" title="Mute">&#128266;</button>
+    <div class="vol-wrap">
+      <input type="range" class="vol-slider" min="0" max="100" value="40" id="vol-slider" />
+    </div>
+    <div class="m-divider"></div>
+    <button class="m-btn" id="next-btn" title="Next track" style="font-size:0.65rem;letter-spacing:0.08em;">&#9654;&#9654;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  TYPEWRITER INDICATOR                           -->
+<!-- ═══════════════════════════════════════════════ -->
+<div id="tw-indicator">
+  <div class="tw-cursor-dot"></div>
+  typing mode active — click anywhere to disable
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  PARTICLES CANVAS (landing background)          -->
+<!-- ═══════════════════════════════════════════════ -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  PAGE: LANDING                                  -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page active" id="page-landing">
+  <div class="landing-hero">
+    <div class="landing-eyebrow reveal">A Worldbuilding Archive</div>
+    <h1 class="landing-title reveal d1">
+      The Sky Will<br><em>Rain Iron</em>
+    </h1>
+    <div class="landing-rule"></div>
+    <div class="landing-nav-grid reveal d2">
+      <a class="lnav-item" onclick="navigateTo('worldmap')">
+        <div class="lnav-num">01 — GEOGRAPHY</div>
+        <div class="lnav-title">World Map</div>
+        <div class="lnav-desc">Territories, ages, and the strange cartography of a world that has rewritten itself.</div>
+        <span class="lnav-arrow">&#8594;</span>
+      </a>
+      <a class="lnav-item" onclick="navigateTo('timeline')">
+        <div class="lnav-num">02 — CHRONOLOGY</div>
+        <div class="lnav-title">Timeline</div>
+        <div class="lnav-desc">Fragments of history. Some ages are written. Some are not.</div>
+        <span class="lnav-arrow">&#8594;</span>
+      </a>
+      <a class="lnav-item" onclick="navigateTo('read')">
+        <div class="lnav-num">03 — LIBRARY</div>
+        <div class="lnav-title">Read Online</div>
+        <div class="lnav-desc">Series, oneshots, and short fiction set across the ages.</div>
+        <span class="lnav-arrow">&#8594;</span>
+      </a>
+      <a class="lnav-item" onclick="navigateTo('blog')">
+        <div class="lnav-num">04 — DISPATCH</div>
+        <div class="lnav-title">The Blog No One Reads</div>
+        <div class="lnav-desc">Notes from the archive. Observations no one asked for.</div>
+        <span class="lnav-arrow">&#8594;</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  PAGE: WORLD MAP                                -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page" id="page-worldmap">
+  <div class="interior">
+    <div class="page-eyebrow reveal">Geography &amp; History</div>
+    <h2 class="page-title reveal d1">World Map</h2>
+    <div class="page-rule reveal d2"></div>
+    <p class="page-intro reveal d2 tw-text">
+      Each age has been recorded by a different hand, in a different tongue, under a different sky. The oldest histories grow stranger as you approach them — not because the world was stranger then, but because the scribes were.
+    </p>
+
+    <!-- Map placeholder SVG -->
+    <div class="map-wrap reveal d3">
+      <svg viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="mg1" cx="35%" cy="45%" r="40%">
+            <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.06"/>
+            <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="mg2" cx="72%" cy="60%" r="30%">
+            <stop offset="0%" stop-color="#e8e0d0" stop-opacity="0.04"/>
+            <stop offset="100%" stop-color="#e8e0d0" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="blur1">
+            <feGaussianBlur stdDeviation="1.5"/>
+          </filter>
+        </defs>
+        <rect width="960" height="540" fill="#050505"/>
+        <rect width="960" height="540" fill="url(#mg1)"/>
+        <rect width="960" height="540" fill="url(#mg2)"/>
+
+        <!-- Grid lines -->
+        <g stroke="rgba(232,224,208,0.04)" stroke-width="0.5">
+          <line x1="0" y1="90" x2="960" y2="90"/>
+          <line x1="0" y1="180" x2="960" y2="180"/>
+          <line x1="0" y1="270" x2="960" y2="270"/>
+          <line x1="0" y1="360" x2="960" y2="360"/>
+          <line x1="0" y1="450" x2="960" y2="450"/>
+          <line x1="120" y1="0" x2="120" y2="540"/>
+          <line x1="240" y1="0" x2="240" y2="540"/>
+          <line x1="360" y1="0" x2="360" y2="540"/>
+          <line x1="480" y1="0" x2="480" y2="540"/>
+          <line x1="600" y1="0" x2="600" y2="540"/>
+          <line x1="720" y1="0" x2="720" y2="540"/>
+          <line x1="840" y1="0" x2="840" y2="540"/>
+        </g>
+
+        <!-- Abstract landmasses -->
+        <g fill="rgba(232,224,208,0.055)" stroke="rgba(201,168,76,0.18)" stroke-width="0.8" filter="url(#blur1)">
+          <!-- Western continent -->
+          <path d="M 80 180 Q 120 130 200 150 Q 280 140 310 200 Q 340 260 300 320 Q 260 380 200 370 Q 140 360 100 300 Q 70 250 80 180 Z"/>
+          <!-- Central landmass -->
+          <path d="M 370 100 Q 440 80 530 110 Q 600 130 620 200 Q 640 270 580 330 Q 520 390 450 380 Q 380 370 350 300 Q 320 230 350 170 Q 360 130 370 100 Z"/>
+          <!-- Eastern isle group -->
+          <path d="M 680 160 Q 720 140 760 165 Q 790 185 780 230 Q 770 270 730 275 Q 695 275 675 245 Q 655 215 680 160 Z"/>
+          <path d="M 800 240 Q 830 220 870 240 Q 900 260 890 300 Q 878 335 845 330 Q 815 325 800 295 Q 788 265 800 240 Z"/>
+          <!-- Southern land -->
+          <path d="M 150 400 Q 200 385 270 400 Q 320 415 330 460 Q 335 500 280 515 Q 220 525 170 505 Q 120 485 130 445 Q 138 415 150 400 Z"/>
+          <path d="M 420 420 Q 480 405 540 430 Q 580 450 565 490 Q 548 525 500 528 Q 450 530 420 505 Q 400 480 420 420 Z"/>
+        </g>
+
+        <!-- Location dots -->
+        <g fill="var(--gold)" opacity="0.5">
+          <circle cx="195" cy="255" r="3"/>
+          <circle cx="490" cy="225" r="3"/>
+          <circle cx="730" cy="210" r="2"/>
+          <circle cx="850" cy="275" r="2"/>
+          <circle cx="240" cy="452" r="2"/>
+          <circle cx="490" cy="468" r="2"/>
+        </g>
+
+        <!-- Location labels -->
+        <g fill="rgba(201,168,76,0.55)" font-family="'EB Garamond', serif" font-style="italic" font-size="9">
+          <text x="205" y="252">The First Age</text>
+          <text x="500" y="222">The Unwritten Dominion</text>
+          <text x="740" y="207">&#x25A1; &#x25A1;&#x25A1;&#x25A1;&#x25A1;</text>
+          <text x="855" y="272">&#x25A1;&#x25A1;&#x25A1;</text>
+        </g>
+
+        <!-- Compass rose -->
+        <g transform="translate(900,60)" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="0.8">
+          <line x1="0" y1="-22" x2="0" y2="22"/>
+          <line x1="-22" y1="0" x2="22" y2="0"/>
+          <circle cx="0" cy="0" r="14"/>
+          <circle cx="0" cy="0" r="3" fill="rgba(201,168,76,0.3)" stroke="none"/>
+          <text x="-3" y="-26" fill="rgba(201,168,76,0.4)" font-family="'Cinzel',serif" font-size="7" stroke="none">N</text>
+        </g>
+      </svg>
+      <span class="map-label">Chart of Known Territories — Edition Unknown</span>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="s-label reveal">Entry Navigation</div>
+        <ul class="elist reveal d1">
+          <li>
+            <a class="elink">
+              <span>Most Recent Entry</span>
+              <span class="elink-arr">&#8594;</span>
+            </a>
+          </li>
+          <li>
+            <a class="elink" style="padding-left:1.2rem;font-size:0.88rem;color:rgba(232,224,208,0.35)">
+              <span>Philosophy</span>
+              <span class="elink-arr">&#8594;</span>
+            </a>
+          </li>
+          <li>
+            <a class="elink" style="padding-left:1.2rem;font-size:0.88rem;color:rgba(232,224,208,0.35)">
+              <span>Politics</span>
+              <span class="elink-arr">&#8594;</span>
+            </a>
+          </li>
+          <li>
+            <a class="elink" style="padding-left:1.2rem;font-size:0.88rem;color:rgba(232,224,208,0.35)">
+              <span>Behind the Scenes</span>
+              <span class="elink-arr">&#8594;</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="primer reveal mt2">
+          <div class="primer-label">Primer Text</div>
+          <p class="primer-text tw-text">
+            The world did not end once. It has ended many times, each ending authored by a different hand.
+            The sky will rain iron — this much the oldest texts agree upon. What they cannot agree upon is
+            when. Or whether it already has.
+          </p>
+        </div>
+
+        <div class="mt2 reveal d1">
+          <ul class="elist">
+            <li><a class="elink"><span>Library</span><span class="elink-arr">&#8594;</span></a></li>
+          </ul>
+        </div>
+
+        <p class="footnote reveal">
+          Each age is written by a different author, in a different style, with the older histories becoming
+          more and more insane and esoteric.
+        </p>
+      </div>
+
+      <aside>
+        <div class="side-box reveal">
+          <div class="side-box-title">Sections</div>
+          <ul class="side-list">
+            <li><a>World Map</a></li>
+            <li><a>The First Age</a></li>
+            <li><a>The Unwritten Ages</a></li>
+            <li><a class="sub">Adam &amp; Eve Accounts</a></li>
+            <li><a class="sub">Dormalan Suzereign</a></li>
+            <li><a>The Secret Ages</a></li>
+            <li><a>The Known Ages</a></li>
+          </ul>
+        </div>
+        <div class="side-box reveal d1 mt1">
+          <div class="side-box-title">Quick Access</div>
+          <ul class="side-list">
+            <li><a>Most Recent Entry</a></li>
+            <li><a>Primer Text</a></li>
+            <li><a>Library</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  PAGE: TIMELINE                                 -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page" id="page-timeline">
+  <div class="interior">
+    <div class="page-eyebrow reveal">Chronology</div>
+    <h2 class="page-title reveal d1">Timeline</h2>
+    <div class="page-rule reveal d2"></div>
+    <p class="page-intro reveal d2 tw-text">
+      What is preserved here is partial. The full timeline is not included.
+      Some mysteries must remain intact.
+    </p>
+
+    <div class="two-col">
+      <div>
+        <div class="timeline-veil reveal">
+          <p class="veil-text tw-text">
+            The archive does not reveal its full chronology.<br>
+            To know everything is to understand nothing.
+          </p>
+          <div class="veil-separator"></div>
+          <p class="veil-text" style="font-size:0.8rem;opacity:0.65;">
+            All events recorded in the Unwritten Ages and the Secret Ages<br>
+            are conveyed through short stories from Adam and Eve<br>
+            and the Dormalan Suzereign.
+          </p>
+        </div>
+
+        <div class="timeline-fragments reveal d1">
+          <div class="t-frag">
+            <div class="t-date">AGE I</div>
+            <div class="t-content">The First Compact is written. <span class="redact">■■■■■■■■■■■■</span> agrees to terms not yet understood.</div>
+          </div>
+          <div class="t-frag">
+            <div class="t-date">AGE II–V</div>
+            <div class="t-content"><span class="redact">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■</span></div>
+          </div>
+          <div class="t-frag">
+            <div class="t-date">UNWRITTEN</div>
+            <div class="t-content">
+              The Dormalan Suzereign takes <span class="redact">■■■■■■■</span> from the Garden.
+              Eve sees this. Adam does not.
+            </div>
+          </div>
+          <div class="t-frag">
+            <div class="t-date">SECRET</div>
+            <div class="t-content"><span class="redact">■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■</span></div>
+          </div>
+          <div class="t-frag">
+            <div class="t-date">KNOWN I</div>
+            <div class="t-content">The sky rains iron for the first time. No one survives to record this as a first time.</div>
+          </div>
+          <div class="t-frag">
+            <div class="t-date">PRESENT</div>
+            <div class="t-content"><span class="redact">■■■■■■■■■■■</span> · You are here.</div>
+          </div>
+        </div>
+
+        <div class="dormalan-note reveal mt2">
+          <p class="tw-text">
+            A note on the Dormalan Suzereign: their accounts are unreliable by design.
+            Read Adam's version first. Then Eve's. Then decide which one you believe.
+            Then read the Suzereign's, and reconsider everything.
+          </p>
+        </div>
+
+        <div class="mt2 reveal d1">
+          <ul class="elist">
+            <li><a class="elink"><span>Most Recent Entry</span><span class="elink-arr">&#8594;</span></a></li>
+            <li><a class="elink"><span>Library</span><span class="elink-arr">&#8594;</span></a></li>
+          </ul>
+        </div>
+      </div>
+
+      <aside>
+        <div class="side-box reveal">
+          <div class="side-box-title">Navigation</div>
+          <ul class="side-list">
+            <li><a>Series</a></li>
+            <li><a>Oneshots</a></li>
+            <li><a>Short Stories</a></li>
+          </ul>
+          <div class="side-divider"></div>
+          <ul class="side-list">
+            <li><a>Primer Text</a></li>
+            <li><a>Most Recent Entry</a></li>
+            <li><a>Library</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  PAGE: READ ONLINE                              -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page" id="page-read">
+  <div class="interior">
+    <div class="page-eyebrow reveal">The Archive</div>
+    <h2 class="page-title reveal d1">Read Online</h2>
+    <div class="page-rule reveal d2"></div>
+    <p class="page-intro reveal d2 tw-text">
+      Stories from across the ages, in the voices of those who lived through them.
+      Each author is a product of their time. The writing reflects this.
+    </p>
+
+    <div class="read-grid reveal d2">
+      <a class="read-card">
+        <div class="rc-icon">&#8771;</div>
+        <div class="rc-title">Series</div>
+        <div class="rc-desc">Long-form fiction spanning multiple ages and authors. The main thread of the archive.</div>
+      </a>
+      <a class="read-card">
+        <div class="rc-icon">&#9632;</div>
+        <div class="rc-title">Oneshots</div>
+        <div class="rc-desc">Self-contained pieces. Single moments, single voices. Read in any order.</div>
+      </a>
+      <a class="read-card">
+        <div class="rc-icon">&#9670;</div>
+        <div class="rc-title">Short Stories</div>
+        <div class="rc-desc">From the Unwritten and Secret Ages. Adam. Eve. The Dormalan Suzereign.</div>
+      </a>
+      <a class="read-card">
+        <div class="rc-icon">&#9724;</div>
+        <div class="rc-title">Library</div>
+        <div class="rc-desc">The complete collection, indexed and searchable. Everything that has been committed to the archive.</div>
+      </a>
+    </div>
+
+    <div class="primer reveal mt3">
+      <div class="primer-label">Reading Note</div>
+      <p class="primer-text tw-text">
+        Begin with the Series if you want context. Begin with the Short Stories
+        if you want to be unsettled immediately. There is no wrong way into this world —
+        only wrong expectations about what you will find.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  PAGE: BLOG                                     -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="page" id="page-blog">
+  <div class="interior">
+    <div class="blog-header reveal">
+      <div class="page-eyebrow">Dispatch</div>
+      <h2 class="page-title">The Blog No One Reads</h2>
+      <p class="blog-subtitle">Notes from the archive. Observations no one asked for.</p>
+    </div>
+
+    <div class="blog-most-recent reveal">
+      <div>
+        <div class="blog-mr-label">Most Recent Entry</div>
+        <div class="blog-mr-title tw-text">On the Reliability of Unreliable Narrators</div>
+      </div>
+      <span class="blog-mr-arr">&#8594;</span>
+    </div>
+
+    <div class="blog-entry-list reveal d1">
+      <div class="blog-entry">
+        <div class="blog-entry-date">Entry — [date redacted]</div>
+        <div class="blog-entry-title">Why the Oldest Ages Read Like Fever Dreams</div>
+      </div>
+      <div class="blog-entry">
+        <div class="blog-entry-date">Entry — [date redacted]</div>
+        <div class="blog-entry-title">The Dormalan Suzereign: A Reader's Guide to Not Understanding</div>
+      </div>
+      <div class="blog-entry">
+        <div class="blog-entry-date">Entry — [date redacted]</div>
+        <div class="blog-entry-title">What Adam Saw. What Eve Saw. What Neither of Them Said.</div>
+      </div>
+      <div class="blog-entry">
+        <div class="blog-entry-date">Entry — [date redacted]</div>
+        <div class="blog-entry-title">Notes on Writing History from the Perspective of Someone Who Wasn't There</div>
+      </div>
+      <div class="blog-entry">
+        <div class="blog-entry-date">Entry — [date redacted]</div>
+        <div class="blog-entry-title">The Sky Will Rain Iron: On Titles as Prophecy</div>
+      </div>
+    </div>
+
+    <div class="mt3 reveal d2">
+      <ul class="elist">
+        <li><a class="elink"><span>Library</span><span class="elink-arr">&#8594;</span></a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  JAVASCRIPT                                     -->
+<!-- ═══════════════════════════════════════════════ -->
+<script>
+  /* ─── State ───────────────────────────────────── */
+  let currentPage = 'landing';
+  let typingEnabled = true;
+  let typingInProgress = false;
+  let muted = false;
+  let playing = true;
+  let volume = 40;
+
+  const tracks = [
+    'Adagio in G minor — Bach',
+    'Raindrop Prelude — Chopin',
+    'Goldberg Variations, Aria — Bach',
+    'Nocturne in E♭ — Chopin',
+  ];
+  let trackIdx = 0;
+
+  /* ─── Loading animation ───────────────────────── */
+  const loadingEl  = document.getElementById('loading');
+  const titleEl    = document.getElementById('loading-title');
+  const siteNav    = document.getElementById('site-nav');
+  const musicCtrl  = document.getElementById('music-controls');
+  const twIndicator= document.getElementById('tw-indicator');
+
+  const titleText = 'THE SKY WILL RAIN IRON';
+
+  // Build letter spans
+  titleText.split('').forEach((ch, i) => {
+    const span = document.createElement('span');
+    span.classList.add('lt-char');
+    if (ch === ' ') span.classList.add('space');
+    span.textContent = ch === ' ' ? ' ' : ch;
+    span.style.transitionDelay = `${i * 55}ms`;
+    titleEl.appendChild(span);
+  });
+
+  // Trigger letter reveal on next frame
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.lt-char').forEach(s => s.classList.add('show'));
+    });
+  });
+
+  // After 2.4s, fade out loading and show site
+  setTimeout(() => {
+    loadingEl.classList.add('fade-out');
+    setTimeout(() => {
+      loadingEl.style.display = 'none';
+      siteNav.classList.add('visible');
+      musicCtrl.classList.add('visible');
+      twIndicator.classList.add('visible');
+      showPage('landing');
+      initParticles();
+      initReveal();
+    }, 1000);
+  }, 2400);
+
+  /* ─── Page navigation ─────────────────────────── */
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const p = document.getElementById('page-' + name);
+    if (p) {
+      p.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      currentPage = name;
+
+      // Show/hide particle canvas
+      const canvas = document.getElementById('particles-canvas');
+      canvas.style.display = name === 'landing' ? 'block' : 'none';
+
+      // Update nav links
+      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('current'));
+      const nlMap = { worldmap:'nl-worldmap', timeline:'nl-timeline', read:'nl-read', blog:'nl-blog' };
+      if (nlMap[name]) {
+        const el = document.getElementById(nlMap[name]);
+        if (el) el.classList.add('current');
+      }
+
+      // Re-run reveal for new page
+      setTimeout(() => initReveal(), 50);
+
+      // Run typewriter on new page
+      if (typingEnabled) {
+        setTimeout(() => runTypewriter(p), 300);
+      }
+    }
+  }
+
+  function navigateTo(name) {
+    showPage(name);
+  }
+
+  /* ─── Scroll reveal ───────────────────────────── */
+  function initReveal() {
+    const revealEls = document.querySelectorAll('.page.active .reveal:not(.in)');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach(el => obs.observe(el));
+  }
+
+  /* ─── Typewriter ──────────────────────────────── */
+  function runTypewriter(container) {
+    if (!typingEnabled) return;
+    const twEls = container.querySelectorAll('.tw-text');
+    twEls.forEach((el, i) => {
+      if (el.dataset.twDone) return;
+      el.dataset.twDone = '1';
+      const original = el.textContent;
+      el.textContent = '';
+
+      // Wrap each character
+      original.split('').forEach(ch => {
+        const s = document.createElement('span');
+        s.classList.add('tw-char');
+        s.textContent = ch;
+        el.appendChild(s);
+      });
+
+      // Observe to trigger typing when visible
+      const obs2 = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting && typingEnabled) {
+            typeChars(el.querySelectorAll('.tw-char'), 0);
+            obs2.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.2 });
+      obs2.observe(el);
+    });
+  }
+
+  function typeChars(chars, idx) {
+    if (!typingEnabled) {
+      chars.forEach(c => c.classList.add('shown'));
+      return;
+    }
+    if (idx >= chars.length) return;
+    chars[idx].classList.add('shown');
+    const ch = chars[idx].textContent;
+    const delay = ch === '.' || ch === ',' || ch === '?' ? 60 : ch === ' ' ? 30 : 22;
+    setTimeout(() => typeChars(chars, idx + 1), delay);
+  }
+
+  // Click anywhere to toggle typing
+  document.body.addEventListener('click', (e) => {
+    // Don't toggle on nav links
+    if (e.target.closest('a, button, input')) return;
+    typingEnabled = !typingEnabled;
+
+    if (!typingEnabled) {
+      // Show all remaining chars instantly
+      document.querySelectorAll('.tw-char').forEach(c => c.classList.add('shown'));
+      twIndicator.classList.add('off');
+    } else {
+      twIndicator.classList.remove('off');
+    }
+  });
+
+  /* ─── Music controls (UI only) ────────────────── */
+  const playBtn  = document.getElementById('play-btn');
+  const muteBtn  = document.getElementById('mute-btn');
+  const volSlider= document.getElementById('vol-slider');
+  const nextBtn  = document.getElementById('next-btn');
+  const trackLbl = document.getElementById('track-label');
+
+  playBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    playing = !playing;
+    playBtn.innerHTML = playing ? '&#9654;' : '&#9646;&#9646;';
+    playBtn.classList.toggle('active', playing);
+  });
+
+  muteBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    muted = !muted;
+    muteBtn.innerHTML = muted ? '&#128263;' : '&#128266;';
+    muteBtn.classList.toggle('active', muted);
+    volSlider.style.opacity = muted ? '0.3' : '1';
+  });
+
+  nextBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    trackIdx = (trackIdx + 1) % tracks.length;
+    trackLbl.textContent = tracks[trackIdx];
+    // Brief flash
+    trackLbl.style.color = 'rgba(201,168,76,0.7)';
+    setTimeout(() => { trackLbl.style.color = ''; }, 800);
+  });
+
+  volSlider.addEventListener('input', (e) => { e.stopPropagation(); volume = e.target.value; });
+  volSlider.addEventListener('click', (e) => e.stopPropagation());
+
+  /* ─── Particle system ─────────────────────────── */
+  function initParticles() {
+    const canvas = document.getElementById('particles-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles;
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function mkParticle() {
+      return {
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.2 + 0.3,
+        dx: (Math.random() - 0.5) * 0.18,
+        dy: -(Math.random() * 0.25 + 0.05),
+        opacity: Math.random() * 0.35 + 0.05,
+        life: 0,
+        maxLife: Math.random() * 600 + 300,
+      };
+    }
+
+    function init() {
+      resize();
+      particles = Array.from({ length: 55 }, mkParticle);
+    }
+
+    function draw() {
+      if (currentPage !== 'landing') return;
+      ctx.clearRect(0, 0, W, H);
+
+      particles.forEach((p, i) => {
+        p.life++;
+        p.x += p.dx;
+        p.y += p.dy;
+
+        const lifeFrac = p.life / p.maxLife;
+        const fade = lifeFrac < 0.15 ? lifeFrac / 0.15 :
+                     lifeFrac > 0.8  ? (1 - lifeFrac) / 0.2 : 1;
+
+        // Alternate gold and white particles
+        const isGold = i % 3 === 0;
+        const color = isGold ? `rgba(201,168,76,${p.opacity * fade})` : `rgba(232,224,208,${p.opacity * 0.4 * fade})`;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        if (p.life >= p.maxLife || p.y < -10) {
+          particles[i] = mkParticle();
+          particles[i].y = H + 5;
+        }
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', () => { resize(); });
+    init();
+    draw();
+  }
+</script>
+</body>
+</html>
