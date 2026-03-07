@@ -1205,12 +1205,35 @@
   let volume = 40;
 
   const tracks = [
-    'Adagio in G minor — Bach',
-    'Raindrop Prelude — Chopin',
-    'Goldberg Variations, Aria — Bach',
-    'Nocturne in E♭ — Chopin',
+    {
+      label: 'Goldberg Variations, Aria — Bach',
+      url: 'https://archive.org/download/The_Open_Goldberg_Variations-11823/Kimiko_Ishizaka_-_01_-_Aria.mp3'
+    },
+    {
+      label: 'Raindrop Prelude — Chopin',
+      url: 'https://archive.org/download/Onclassical-ChopinPreludesOp.28PlayedByGiampaoloStuani/onclassical_stuani_chopin_preludes_opus-28_15.mp3'
+    },
   ];
   let trackIdx = 0;
+
+  /* ─── Audio engine ────────────────────────────── */
+  const audio = new Audio();
+  audio.loop = false;
+  audio.volume = 0.4;
+  audio.preload = 'none';
+
+  function loadTrack(idx) {
+    const wasPlaying = !audio.paused;
+    audio.src = tracks[idx].url;
+    trackLbl.textContent = tracks[idx].label;
+    if (wasPlaying) audio.play().catch(() => {});
+  }
+
+  audio.addEventListener('ended', () => {
+    trackIdx = (trackIdx + 1) % tracks.length;
+    loadTrack(trackIdx);
+    audio.play().catch(() => {});
+  });
 
   /* ─── Loading animation ───────────────────────── */
   const loadingEl  = document.getElementById('loading');
@@ -1360,23 +1383,34 @@
     }
   });
 
-  /* ─── Music controls (UI only) ────────────────── */
+  /* ─── Music controls ──────────────────────────── */
   const playBtn  = document.getElementById('play-btn');
   const muteBtn  = document.getElementById('mute-btn');
   const volSlider= document.getElementById('vol-slider');
   const nextBtn  = document.getElementById('next-btn');
   const trackLbl = document.getElementById('track-label');
 
+  // Set initial label
+  trackLbl.textContent = tracks[0].label;
+
   playBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    playing = !playing;
-    playBtn.innerHTML = playing ? '&#9654;' : '&#9646;&#9646;';
+    if (audio.paused) {
+      if (!audio.src) loadTrack(trackIdx);
+      audio.play().catch(() => {});
+      playing = true;
+    } else {
+      audio.pause();
+      playing = false;
+    }
+    playBtn.innerHTML = playing ? '&#9646;&#9646;' : '&#9654;';
     playBtn.classList.toggle('active', playing);
   });
 
   muteBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     muted = !muted;
+    audio.muted = muted;
     muteBtn.innerHTML = muted ? '&#128263;' : '&#128266;';
     muteBtn.classList.toggle('active', muted);
     volSlider.style.opacity = muted ? '0.3' : '1';
@@ -1385,13 +1419,17 @@
   nextBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     trackIdx = (trackIdx + 1) % tracks.length;
-    trackLbl.textContent = tracks[trackIdx];
-    // Brief flash
+    loadTrack(trackIdx);
+    if (playing) audio.play().catch(() => {});
     trackLbl.style.color = 'rgba(201,168,76,0.7)';
     setTimeout(() => { trackLbl.style.color = ''; }, 800);
   });
 
-  volSlider.addEventListener('input', (e) => { e.stopPropagation(); volume = e.target.value; });
+  volSlider.addEventListener('input', (e) => {
+    e.stopPropagation();
+    volume = e.target.value;
+    audio.volume = volume / 100;
+  });
   volSlider.addEventListener('click', (e) => e.stopPropagation());
 
   /* ─── Particle system ─────────────────────────── */
