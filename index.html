@@ -1272,6 +1272,27 @@
       showPage('landing');
       initParticles();
       initReveal();
+      // Attempt autoplay — browsers may block this until user interacts
+      loadTrack(trackIdx);
+      audio.play().then(() => {
+        playing = true;
+        playBtn.innerHTML = '&#9646;&#9646;';
+        playBtn.classList.add('active');
+      }).catch(() => {
+        // Autoplay blocked — play silently on first interaction
+        playing = false;
+        const startOnInteract = () => {
+          audio.play().then(() => {
+            playing = true;
+            playBtn.innerHTML = '&#9646;&#9646;';
+            playBtn.classList.add('active');
+          }).catch(() => {});
+          document.removeEventListener('click', startOnInteract);
+          document.removeEventListener('keydown', startOnInteract);
+        };
+        document.addEventListener('click', startOnInteract);
+        document.addEventListener('keydown', startOnInteract);
+      });
     }, 1000);
   }, 2400);
 
