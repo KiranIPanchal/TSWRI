@@ -534,15 +534,16 @@
     .map-inner {
       position: absolute;
       top: 0; left: 0;
-      width: 100%; height: 100%;
+      width: 100%;           /* fills container width */
+      /* height auto-sizes to image's natural 4:3 aspect ratio */
       transform-origin: 0 0;
       will-change: transform;
     }
     .map-inner img {
       display: block;
-      width: 100%; height: 100%;
-      object-fit: cover;
-      object-position: center;
+      width: 100%;
+      height: auto;          /* natural aspect ratio — no cropping */
+      max-width: none;
       pointer-events: none;
       image-rendering: auto;
     }
@@ -1109,7 +1110,7 @@
 
       <!-- Settlement markers — gold icons only (Civilised Capitals, Major Cities & Structures, Major Natural Landmarks) -->
 
-      <div class="map-marker" data-x="22" data-y="34" data-cat="territories"
+      <div class="map-marker" data-x="20" data-y="38" data-cat="territories"
            data-region="Peryute"
            data-lore="A western city of unknown founding, whose records exist in three languages none native to the region. Each successive age recorded it as though discovering it for the first time."
            data-detail="Major City — Western territories"
@@ -1118,7 +1119,7 @@
         <div class="map-marker-label">Peryute</div>
       </div>
 
-      <div class="map-marker" data-x="63" data-y="21" data-cat="territories"
+      <div class="map-marker" data-x="58" data-y="22" data-cat="territories"
            data-region="Silicyan Capital"
            data-lore="The seat of Silicyan civilisation. Administrative records span more ages than most scholars consider possible. The city has never fallen — a fact historians find more troubling, not less."
            data-detail="Civilised Capital — Northern territories"
@@ -1127,7 +1128,7 @@
         <div class="map-marker-label">Silicyan Capital</div>
       </div>
 
-      <div class="map-marker" data-x="37" data-y="12" data-cat="territories"
+      <div class="map-marker" data-x="34" data-y="13" data-cat="territories"
            data-region="The Lighthouse of Frostport"
            data-lore="The northernmost navigational structure in the known world. It has been rebuilt fourteen times, each reconstruction following a different architectural philosophy. The light itself has never been extinguished."
            data-detail="Major Structure — Northern coast"
@@ -1136,7 +1137,7 @@
         <div class="map-marker-label">Frostport Lighthouse</div>
       </div>
 
-      <div class="map-marker" data-x="51" data-y="11" data-cat="territories"
+      <div class="map-marker" data-x="47" data-y="11" data-cat="territories"
            data-region="Holmgarde"
            data-lore="The principal settlement of the northern territories. Its name appears in records predating the city's known founding by several centuries. No one has satisfactorily explained this."
            data-detail="Major City — Northern territories"
@@ -1145,7 +1146,7 @@
         <div class="map-marker-label">Holmgarde</div>
       </div>
 
-      <div class="map-marker" data-x="44" data-y="40" data-cat="territories"
+      <div class="map-marker" data-x="40" data-y="44" data-cat="territories"
            data-region="Atmon, City of Temples"
            data-lore="A city defined not by its commerce or politics, but by its accumulation of sacred sites. Scholars cannot agree on what any of the temples were built to honour — or whether honour was the right word."
            data-detail="Major City — Central territories"
@@ -1154,7 +1155,7 @@
         <div class="map-marker-label">Atmon</div>
       </div>
 
-      <div class="map-marker" data-x="57" data-y="40" data-cat="territories"
+      <div class="map-marker" data-x="52" data-y="43" data-cat="territories"
            data-region="Kadeshra"
            data-lore="Located at the intersection of three major trade routes that no longer exist. Its continued prosperity is considered something of a historical anomaly by every age that encountered it."
            data-detail="Major City — Central territories"
@@ -1163,7 +1164,7 @@
         <div class="map-marker-label">Kadeshra</div>
       </div>
 
-      <div class="map-marker" data-x="49" data-y="53" data-cat="territories"
+      <div class="map-marker" data-x="44" data-y="57" data-cat="territories"
            data-region="Thulmola, the Twin Cities"
            data-lore="Two cities sharing one administrative structure that have never agreed on which of them is the primary settlement. The bridge between them has been destroyed and rebuilt more often than either city itself."
            data-detail="Major City — Central territories"
@@ -1172,7 +1173,7 @@
         <div class="map-marker-label">Thulmola</div>
       </div>
 
-      <div class="map-marker" data-x="66" data-y="52" data-cat="territories"
+      <div class="map-marker" data-x="59" data-y="56" data-cat="territories"
            data-region="Candabor, City of Sluices"
            data-lore="Built around water management infrastructure that predates the city by at least two ages. The original engineers are unknown. The city grew around systems it did not design and cannot fully explain."
            data-detail="Major City — Eastern territories"
@@ -1181,7 +1182,7 @@
         <div class="map-marker-label">Candabor</div>
       </div>
 
-      <div class="map-marker" data-x="75" data-y="64" data-cat="territories"
+      <div class="map-marker" data-x="65" data-y="70" data-cat="territories"
            data-region="The Dam City of Aguagello"
            data-lore="Built into and around a dam of unknown origin. The city's entire economy depends on controlling what flows through and what is held back. The dam predates the city by an age no one can name."
            data-detail="Major City — South-eastern territories"
@@ -1190,7 +1191,7 @@
         <div class="map-marker-label">Aguagello</div>
       </div>
 
-      <div class="map-marker" data-x="37" data-y="38" data-cat="lore"
+      <div class="map-marker" data-x="33" data-y="42" data-cat="lore"
            data-region="Ancient Sarabon Mountain Temples"
            data-lore="The oldest religious architecture in the known world. Built by a culture that left no other evidence of its existence — no graves, no tools, no descendant languages. Only the temples."
            data-detail="Major Natural Landmark — Central mountain range"
@@ -1199,7 +1200,7 @@
         <div class="map-marker-label">Sarabon Temples</div>
       </div>
 
-      <div class="map-marker" data-x="61" data-y="30" data-cat="events"
+      <div class="map-marker" data-x="56" data-y="32" data-cat="events"
            data-region="Gates of Priam"
            data-lore="A monumental gateway whose construction predates reliable historical record. It has been captured, contested, and destroyed at least once in every age. Each rebuilding changes what the gate is for."
            data-detail="Major Structure — Upper eastern territories"
@@ -1208,7 +1209,7 @@
         <div class="map-marker-label">Gates of Priam</div>
       </div>
 
-      <div class="map-marker" data-x="46" data-y="57" data-cat="lore"
+      <div class="map-marker" data-x="42" data-y="62" data-cat="lore"
            data-region="The Gateway Oasis"
            data-lore="The only significant water source in a region that all major trade routes have historically avoided. Its name suggests it was once more frequented. What changed is not recorded."
            data-detail="Major Natural Landmark — Desert territories"
@@ -1720,7 +1721,7 @@
     const markers = wrap.querySelectorAll('.map-marker');
     if (!wrap || !inner) return;
 
-    let scale = 1, minScale = 0.5, maxScale = 5;
+    let scale = 1, minScale = 0.3, maxScale = 6;
     let tx = 0, ty = 0;
     let dragging = false, startX, startY, startTx, startTy;
     let lastDist = null; // for pinch
@@ -1757,21 +1758,21 @@
     }
 
     function positionMarkers() {
-      const ww = wrap.offsetWidth, wh = wrap.offsetHeight;
+      // Use the image's actual rendered dimensions (not the container)
+      // so percentages map correctly to map content regardless of container aspect ratio
+      const iw = inner.offsetWidth;
+      const ih = inner.offsetHeight;
       markers.forEach(m => {
         const px = parseFloat(m.dataset.x) / 100;
         const py = parseFloat(m.dataset.y) / 100;
-        // Map image coords → screen coords
-        const mx = tx + px * ww * scale;
-        const my = ty + py * wh * scale;
+        const mx = tx + px * iw * scale;
+        const my = ty + py * ih * scale;
         m.style.left = mx + 'px';
         m.style.top  = my + 'px';
-        // Show markers: must be in active category and zoomed in enough
         const catMatch = (activeCat === 'all') || (m.dataset.cat === activeCat);
-        m.style.display = (catMatch && scale >= 0.6) ? 'block' : 'none';
-        // Label opacity: fade at low zoom, visible at 1+
+        m.style.display = (catMatch && scale >= minScale * 0.9) ? 'block' : 'none';
         const labelEl = m.querySelector('.map-marker-label');
-        if (labelEl) labelEl.style.opacity = Math.min(1, Math.max(0, (scale - 0.6) / 0.4)) * 0.7 + '';
+        if (labelEl) labelEl.style.opacity = Math.min(1, Math.max(0, (scale - minScale) / 0.3)) * 0.7 + '';
       });
     }
 
@@ -1892,7 +1893,20 @@
       panel.classList.remove('open');
     });
 
-    positionMarkers();
+    // ── Initial fit: scale so entire map is visible, centered ──
+    (function fitInitial() {
+      const iw = inner.offsetWidth;
+      const ih = inner.offsetHeight;
+      const ww = wrap.offsetWidth;
+      const wh = wrap.offsetHeight;
+      if (!iw || !ih) return; // image not yet rendered
+      const fitScale = Math.min(ww / iw, wh / ih);
+      scale    = fitScale;
+      minScale = fitScale * 0.7;  // allow zooming slightly beyond fit
+      tx = (ww - iw * scale) / 2;
+      ty = (wh - ih * scale) / 2;
+      applyTransform(false);
+    })();
   }
 
   let mapInited = false;
