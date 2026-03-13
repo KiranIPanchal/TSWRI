@@ -693,6 +693,122 @@
     }
     .map-marker:hover .map-marker-label { opacity: 1; color: var(--gold); }
 
+    /* ── Cartographic side border panels ── */
+    .map-border {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 15%;           /* overridden by JS once bar width is known */
+      min-width: 72px;
+      z-index: 3;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .map-border-l {
+      left: 0;
+      background:
+        repeating-linear-gradient(to bottom,
+          transparent 0, transparent 47px,
+          rgba(201,168,76,0.04) 47px, rgba(201,168,76,0.04) 48px),
+        linear-gradient(to right,
+          rgba(5,5,5,0.99) 0%,
+          rgba(5,5,5,0.98) 58%,
+          rgba(5,5,5,0.62) 78%,
+          rgba(5,5,5,0.12) 92%,
+          transparent 100%);
+    }
+    .map-border-r {
+      right: 0;
+      background:
+        repeating-linear-gradient(to bottom,
+          transparent 0, transparent 47px,
+          rgba(201,168,76,0.03) 47px, rgba(201,168,76,0.03) 48px),
+        linear-gradient(to left,
+          rgba(5,5,5,0.99) 0%,
+          rgba(5,5,5,0.98) 58%,
+          rgba(5,5,5,0.62) 78%,
+          rgba(5,5,5,0.12) 92%,
+          transparent 100%);
+    }
+    /* Gold vertical rule at map-facing edge */
+    .map-border::after {
+      content: '';
+      position: absolute;
+      top: 7%; bottom: 7%;
+      width: 1px;
+      background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(201,168,76,0.22) 20%,
+        rgba(201,168,76,0.36) 50%,
+        rgba(201,168,76,0.22) 80%,
+        transparent 100%);
+    }
+    .map-border-l::after { right: 0; }
+    .map-border-r::after { left: 0; }
+    /* Second offset rule (double-rule effect) */
+    .map-border-rule2 {
+      position: absolute;
+      top: 12%; bottom: 12%;
+      width: 1px;
+      background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(201,168,76,0.1) 28%,
+        rgba(201,168,76,0.15) 50%,
+        rgba(201,168,76,0.1) 72%,
+        transparent 100%);
+    }
+    .map-border-l .map-border-rule2 { right: 5px; }
+    .map-border-r .map-border-rule2 { left: 5px; }
+    /* Vertically-centred content stack */
+    .map-border-content {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 0; right: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .map-border-r .map-border-content { left: 16px; right: 0; }
+    .map-compass-svg,
+    .map-haar-svg   { display: block; }
+    .map-border-cardinal {
+      font-family: 'Cinzel', serif;
+      font-size: 0.48rem;
+      letter-spacing: 0.55em;
+      text-indent: 0.55em;
+      color: rgba(201,168,76,0.42);
+    }
+    .map-border-sep {
+      width: 18px; height: 1px;
+      background: linear-gradient(to right,
+        transparent, rgba(201,168,76,0.22), transparent);
+    }
+    .map-border-vtext {
+      font-family: 'EB Garamond', serif;
+      font-size: 0.57rem;
+      letter-spacing: 0.36em;
+      text-transform: uppercase;
+      color: rgba(232,224,208,0.2);
+      writing-mode: vertical-lr;
+      text-orientation: mixed;
+    }
+    .map-border-tiny {
+      font-family: 'EB Garamond', serif;
+      font-size: 0.44rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(232,224,208,0.11);
+      text-align: center;
+      line-height: 2.1;
+    }
+    .map-border-warn {
+      font-style: italic;
+      text-transform: none;
+      letter-spacing: 0.08em;
+      color: rgba(201,168,76,0.15);
+    }
+
     /* Lore panel */
     .map-panel {
       position: absolute;
@@ -1246,6 +1362,92 @@
         </div>
       </div>
 
+      <!-- Left cartographic border panel — Western edge with compass -->
+      <div class="map-border map-border-l" aria-hidden="true">
+        <div class="map-border-rule2"></div>
+        <div class="map-border-content">
+          <!-- Windrose / compass -->
+          <svg class="map-compass-svg" viewBox="0 0 64 64" width="58" height="58" xmlns="http://www.w3.org/2000/svg">
+            <!-- Outer dashed ring -->
+            <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(201,168,76,0.13)" stroke-width="0.6" stroke-dasharray="2.4 3.2"/>
+            <!-- Mid ring -->
+            <circle cx="32" cy="32" r="18" fill="none" stroke="rgba(201,168,76,0.09)" stroke-width="0.5"/>
+            <!-- Inner ring -->
+            <circle cx="32" cy="32" r="8"  fill="none" stroke="rgba(201,168,76,0.07)" stroke-width="0.4"/>
+            <!-- 8 intercardinal ticks -->
+            <line x1="11.5" y1="11.5" x2="15.3" y2="15.3" stroke="rgba(201,168,76,0.07)" stroke-width="0.4"/>
+            <line x1="52.5" y1="11.5" x2="48.7" y2="15.3" stroke="rgba(201,168,76,0.07)" stroke-width="0.4"/>
+            <line x1="11.5" y1="52.5" x2="15.3" y2="48.7" stroke="rgba(201,168,76,0.07)" stroke-width="0.4"/>
+            <line x1="52.5" y1="52.5" x2="48.7" y2="48.7" stroke="rgba(201,168,76,0.07)" stroke-width="0.4"/>
+            <!-- Cardinal tick marks -->
+            <line x1="32" y1="4"  x2="32" y2="12" stroke="rgba(201,168,76,0.42)" stroke-width="0.9"/>
+            <line x1="32" y1="52" x2="32" y2="60" stroke="rgba(201,168,76,0.16)" stroke-width="0.6"/>
+            <line x1="4"  y1="32" x2="12" y2="32" stroke="rgba(201,168,76,0.16)" stroke-width="0.6"/>
+            <line x1="52" y1="32" x2="60" y2="32" stroke="rgba(201,168,76,0.16)" stroke-width="0.6"/>
+            <!-- N arrow (prominent) -->
+            <polygon points="32,4 35,32 32,27 29,32"  fill="rgba(201,168,76,0.6)"/>
+            <!-- S arrow -->
+            <polygon points="32,60 35,32 32,37 29,32" fill="rgba(201,168,76,0.14)"/>
+            <!-- E arrow -->
+            <polygon points="60,32 32,29 37,32 32,35" fill="rgba(201,168,76,0.14)"/>
+            <!-- W arrow -->
+            <polygon points="4,32 32,29 27,32 32,35"  fill="rgba(201,168,76,0.14)"/>
+            <!-- Cardinal letters -->
+            <text x="32" y="2.8" text-anchor="middle" font-family="Cinzel,serif" font-size="4.2" fill="rgba(201,168,76,0.5)" letter-spacing="0.5">N</text>
+            <text x="32" y="63.2" text-anchor="middle" font-family="Cinzel,serif" font-size="3.2" fill="rgba(201,168,76,0.2)" letter-spacing="0.5">S</text>
+            <text x="62.2" y="33.4" text-anchor="middle" font-family="Cinzel,serif" font-size="3.2" fill="rgba(201,168,76,0.2)" letter-spacing="0.5">E</text>
+            <text x="1.8"  y="33.4" text-anchor="middle" font-family="Cinzel,serif" font-size="3.2" fill="rgba(201,168,76,0.2)" letter-spacing="0.5">W</text>
+            <!-- Center dot -->
+            <circle cx="32" cy="32" r="2.8" fill="none" stroke="rgba(201,168,76,0.22)" stroke-width="0.6"/>
+            <circle cx="32" cy="32" r="1.1" fill="rgba(201,168,76,0.38)"/>
+          </svg>
+          <div class="map-border-sep"></div>
+          <span class="map-border-vtext">Western Reaches</span>
+          <div class="map-border-sep"></div>
+          <span class="map-border-tiny">Known · Surveyed<br>Approximate</span>
+          <div class="map-border-sep"></div>
+          <svg viewBox="0 0 44 10" width="44" height="10" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <line x1="2" y1="5" x2="42" y2="5" stroke="rgba(201,168,76,0.2)" stroke-width="0.5"/>
+            <line x1="2" y1="3" x2="2"  y2="7" stroke="rgba(201,168,76,0.2)" stroke-width="0.5"/>
+            <line x1="22" y1="3" x2="22" y2="7" stroke="rgba(201,168,76,0.14)" stroke-width="0.5"/>
+            <line x1="42" y1="3" x2="42" y2="7" stroke="rgba(201,168,76,0.2)" stroke-width="0.5"/>
+            <text x="2" y="2.2" font-family="serif" font-size="2.8" fill="rgba(201,168,76,0.22)" text-anchor="middle">0</text>
+            <text x="42" y="2.2" font-family="serif" font-size="2.8" fill="rgba(201,168,76,0.22)" text-anchor="middle">100</text>
+          </svg>
+          <div class="map-border-sep"></div>
+          <span class="map-border-tiny" style="line-height:2.4">Edition Unknown<br>Cartographer Unknown</span>
+        </div>
+      </div>
+
+      <!-- Right cartographic border panel — The Haar / eastern mists -->
+      <div class="map-border map-border-r" aria-hidden="true">
+        <div class="map-border-rule2"></div>
+        <div class="map-border-content">
+          <span class="map-border-vtext" style="color:rgba(201,168,76,0.24)">The Haar</span>
+          <div class="map-border-sep"></div>
+          <!-- Diamond warning glyph with fog layers -->
+          <svg class="map-haar-svg" viewBox="0 0 44 52" width="34" height="40" xmlns="http://www.w3.org/2000/svg">
+            <!-- Outer diamond -->
+            <polygon points="22,2 42,22 22,42 2,22" fill="none" stroke="rgba(201,168,76,0.2)" stroke-width="0.7"/>
+            <!-- Inner diamond -->
+            <polygon points="22,7 37,22 22,37 7,22" fill="none" stroke="rgba(201,168,76,0.1)" stroke-width="0.5"/>
+            <!-- Innermost diamond -->
+            <polygon points="22,13 31,22 22,31 13,22" fill="none" stroke="rgba(201,168,76,0.06)" stroke-width="0.4"/>
+            <!-- Center dot -->
+            <circle cx="22" cy="22" r="1.8" fill="none" stroke="rgba(201,168,76,0.18)" stroke-width="0.5"/>
+            <circle cx="22" cy="22" r="0.7" fill="rgba(201,168,76,0.22)"/>
+            <!-- Fog streamlines below diamond -->
+            <line x1="4"  y1="46"  x2="16" y2="46"  stroke="rgba(201,168,76,0.07)" stroke-width="0.4" stroke-dasharray="1.5 2.2"/>
+            <line x1="6"  y1="49"  x2="18" y2="49"  stroke="rgba(201,168,76,0.05)" stroke-width="0.4" stroke-dasharray="1 3"/>
+            <line x1="2"  y1="44.5" x2="12" y2="44.5" stroke="rgba(201,168,76,0.04)" stroke-width="0.3" stroke-dasharray="0.8 2.5"/>
+          </svg>
+          <div class="map-border-sep"></div>
+          <span class="map-border-tiny map-border-warn">Navigation<br>uncertain<br>beyond this<br>meridian</span>
+          <div class="map-border-sep"></div>
+          <span class="map-border-tiny" style="color:rgba(201,168,76,0.1);font-style:italic;line-height:2.3">No expedition<br>has returned<br>from within</span>
+        </div>
+      </div>
+
     </div><!-- /map-wrap -->
 
   </div><!-- /interior -->
@@ -1726,15 +1928,18 @@
     let dragging = false, startX, startY, startTx, startTy;
     let lastDist = null; // for pinch
 
+    // Smooth scroll zoom state
+    let targetScale, targetTx, targetTy, zoomRAF = null;
+
     function clampTranslate(x, y, s) {
       const ww = wrap.offsetWidth, wh = wrap.offsetHeight;
       const iw = inner.offsetWidth * s, ih = inner.offsetHeight * s;
-      const maxX = 0, minX = Math.min(0, ww - iw);
-      const maxY = 0, minY = Math.min(0, wh - ih);
-      return [
-        Math.max(minX, Math.min(maxX, x)),
-        Math.max(minY, Math.min(maxY, y))
-      ];
+      let minX, maxX, minY, maxY;
+      if (iw <= ww) { const cx = (ww - iw) / 2; minX = maxX = cx; }
+      else { minX = ww - iw; maxX = 0; }
+      if (ih <= wh) { const cy = (wh - ih) / 2; minY = maxY = cy; }
+      else { minY = wh - ih; maxY = 0; }
+      return [Math.max(minX, Math.min(maxX, x)), Math.max(minY, Math.min(maxY, y))];
     }
 
     function applyTransform(animate) {
@@ -1755,6 +1960,25 @@
       const [cx, cy] = clampTranslate(tx, ty, scale);
       tx = cx; ty = cy;
       applyTransform(true);
+    }
+
+    // RAF lerp loop for smooth scroll zoom
+    const EASE = 0.14;
+    function smoothZoom() {
+      const ds = targetScale - scale;
+      const dx = targetTx - tx;
+      const dy = targetTy - ty;
+      if (Math.abs(ds) < 0.0001 && Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
+        scale = targetScale; tx = targetTx; ty = targetTy;
+        applyTransform(false);
+        zoomRAF = null;
+        return;
+      }
+      scale += ds * EASE;
+      tx    += dx * EASE;
+      ty    += dy * EASE;
+      applyTransform(false);
+      zoomRAF = requestAnimationFrame(smoothZoom);
     }
 
     function positionMarkers() {
@@ -1798,14 +2022,23 @@
       wrap.classList.remove('dragging');
     });
 
-    // ── Scroll zoom ──
+    // ── Scroll zoom (smooth RAF lerp) ──
     wrap.addEventListener('wheel', e => {
       e.preventDefault();
       const rect = wrap.getBoundingClientRect();
       const ox = e.clientX - rect.left;
       const oy = e.clientY - rect.top;
-      const delta = e.deltaY > 0 ? 0.85 : 1.18;
-      zoomTo(scale * delta, ox, oy);
+      const delta = e.deltaY > 0 ? 0.88 : 1.14;
+      // Accumulate into targets (using current state as base if RAF not running)
+      if (!zoomRAF) { targetScale = scale; targetTx = tx; targetTy = ty; }
+      const newTarget = Math.max(minScale, Math.min(maxScale, targetScale * delta));
+      const ratio = newTarget / targetScale;
+      targetTx = ox - ratio * (ox - targetTx);
+      targetTy = oy - ratio * (oy - targetTy);
+      targetScale = newTarget;
+      const [cx, cy] = clampTranslate(targetTx, targetTy, targetScale);
+      targetTx = cx; targetTy = cy;
+      if (!zoomRAF) zoomRAF = requestAnimationFrame(smoothZoom);
     }, { passive: false });
 
     // ── Touch (pinch + drag) ──
@@ -1847,7 +2080,15 @@
     // ── Zoom buttons ──
     document.getElementById('map-zoom-in').addEventListener('click',  e => { e.stopPropagation(); zoomTo(scale * 1.4, wrap.offsetWidth/2, wrap.offsetHeight/2); });
     document.getElementById('map-zoom-out').addEventListener('click', e => { e.stopPropagation(); zoomTo(scale * 0.7, wrap.offsetWidth/2, wrap.offsetHeight/2); });
-    document.getElementById('map-reset').addEventListener('click',    e => { e.stopPropagation(); scale=1; tx=0; ty=0; applyTransform(true); });
+    document.getElementById('map-reset').addEventListener('click',    e => {
+      e.stopPropagation();
+      const iw = inner.offsetWidth, ih = inner.offsetHeight;
+      const ww = wrap.offsetWidth,  wh = wrap.offsetHeight;
+      targetScale = fitScale;
+      targetTx = (ww - iw * fitScale) / 2;
+      targetTy = (wh - ih * fitScale) / 2;
+      if (!zoomRAF) zoomRAF = requestAnimationFrame(smoothZoom);
+    });
 
     // ── Category filter ──
     let activeCat = 'all';
@@ -1894,19 +2135,44 @@
     });
 
     // ── Initial fit: scale so entire map is visible, centered ──
-    (function fitInitial() {
+    let fitScale = 1;
+    function fitInitial() {
       const iw = inner.offsetWidth;
       const ih = inner.offsetHeight;
       const ww = wrap.offsetWidth;
       const wh = wrap.offsetHeight;
       if (!iw || !ih) return; // image not yet rendered
-      const fitScale = Math.min(ww / iw, wh / ih);
+      fitScale = Math.min(ww / iw, wh / ih);
       scale    = fitScale;
-      minScale = fitScale * 0.7;  // allow zooming slightly beyond fit
+      minScale = fitScale;  // cannot zoom out beyond full-map view
       tx = (ww - iw * scale) / 2;
       ty = (wh - ih * scale) / 2;
+      targetScale = scale; targetTx = tx; targetTy = ty;
       applyTransform(false);
-    })();
+      // Size border panels and gradient to precisely cover side bars
+      const barW = Math.max(Math.ceil(tx), 0);
+      const overlap = 72; // px of fade into map content
+      const panelW = Math.max(barW + overlap, 80);
+      // Transition starts exactly at the map's left/right edge
+      const sp = barW > 0 ? Math.floor(barW / panelW * 100) : 0; // solid %
+      const fp = Math.min(sp + 12, 98); // fade-mid
+      const ep = Math.min(sp + 26, 100); // fade-end
+      const stripes = 'repeating-linear-gradient(to bottom,transparent 0,transparent 47px,rgba(201,168,76,0.035) 47px,rgba(201,168,76,0.035) 48px)';
+      const gradL = `${stripes},linear-gradient(to right,rgba(5,5,5,0.99) 0%,rgba(5,5,5,0.99) ${sp}%,rgba(5,5,5,0.6) ${fp}%,rgba(5,5,5,0.1) ${ep}%,transparent 100%)`;
+      const gradR = `${stripes},linear-gradient(to left,rgba(5,5,5,0.99) 0%,rgba(5,5,5,0.99) ${sp}%,rgba(5,5,5,0.6) ${fp}%,rgba(5,5,5,0.1) ${ep}%,transparent 100%)`;
+      const bl = wrap.querySelector('.map-border-l');
+      const br = wrap.querySelector('.map-border-r');
+      if (bl) { bl.style.width = panelW + 'px'; bl.style.background = gradL; }
+      if (br) { br.style.width = panelW + 'px'; br.style.background = gradR; }
+    }
+    const mapImg = document.getElementById('map-img');
+    if (mapImg && mapImg.complete && mapImg.naturalWidth) {
+      fitInitial();
+    } else if (mapImg) {
+      mapImg.addEventListener('load', fitInitial, { once: true });
+      fitInitial(); // also try immediately in case it races
+    }
+    window.addEventListener('resize', fitInitial);
   }
 
   let mapInited = false;
