@@ -675,11 +675,7 @@
       animation: markerPulse 2.8s ease-out infinite;
       transition: transform 0.2s, opacity 0.2s;
     }
-    /* Stagger pulse timing across markers */
-    .map-marker:nth-child(2) .map-marker-dot { animation-delay: -0.8s; }
-    .map-marker:nth-child(3) .map-marker-dot { animation-delay: -1.5s; }
-    .map-marker:nth-child(4) .map-marker-dot { animation-delay: -2.1s; }
-    .map-marker:nth-child(5) .map-marker-dot { animation-delay: -0.3s; }
+    /* Pulse delays set via inline style on each marker-dot */
     .map-marker:hover .map-marker-dot { transform: scale(1.8); opacity: 1; }
     .map-marker-label {
       position: absolute;
@@ -1111,50 +1107,114 @@
         <button class="map-cat-btn" data-cat="lore">Behind the World</button>
       </nav>
 
-      <!-- Settlement markers -->
-      <div class="map-marker" data-x="18" data-y="52" data-cat="territories"
-           data-region="The Western Reaches"
-           data-lore="The oldest settlements lie here. The historians who wrote of this place disagreed on almost everything — except that it was the first place the sky changed colour."
-           data-detail="First Age territory. The ground composition here remains anomalous."
+      <!-- Settlement markers — gold icons only (Civilised Capitals, Major Cities & Structures, Major Natural Landmarks) -->
+
+      <div class="map-marker" data-x="22" data-y="34" data-cat="territories"
+           data-region="Peryute"
+           data-lore="A western city of unknown founding, whose records exist in three languages none native to the region. Each successive age recorded it as though discovering it for the first time."
+           data-detail="Major City — Western territories"
            style="display:none">
-        <div class="map-marker-dot"></div>
-        <div class="map-marker-label">Western Reaches</div>
+        <div class="map-marker-dot" style="animation-delay:0s"></div>
+        <div class="map-marker-label">Peryute</div>
       </div>
 
-      <div class="map-marker" data-x="47" data-y="38" data-cat="lore"
-           data-region="The Unwritten Dominion"
-           data-lore="No scribe has survived long enough to finish an account of this region. What records exist were written by people who had never been there, based on the accounts of people who had never spoken to anyone who had."
-           data-detail="Classification: Contested. Historical record: Absent."
+      <div class="map-marker" data-x="63" data-y="21" data-cat="territories"
+           data-region="Silicyan Capital"
+           data-lore="The seat of Silicyan civilisation. Administrative records span more ages than most scholars consider possible. The city has never fallen — a fact historians find more troubling, not less."
+           data-detail="Civilised Capital — Northern territories"
            style="display:none">
-        <div class="map-marker-dot"></div>
-        <div class="map-marker-label">Unwritten Dominion</div>
+        <div class="map-marker-dot" style="animation-delay:-0.23s"></div>
+        <div class="map-marker-label">Silicyan Capital</div>
       </div>
 
-      <div class="map-marker" data-x="68" data-y="44" data-cat="events"
-           data-region="The Iron Coast"
-           data-lore="The coast where it first fell. The ground here still rings when struck."
-           data-detail="Site of the First Rain. Documented across seventeen independent sources, none of which agree on the date."
+      <div class="map-marker" data-x="37" data-y="12" data-cat="territories"
+           data-region="The Lighthouse of Frostport"
+           data-lore="The northernmost navigational structure in the known world. It has been rebuilt fourteen times, each reconstruction following a different architectural philosophy. The light itself has never been extinguished."
+           data-detail="Major Structure — Northern coast"
            style="display:none">
-        <div class="map-marker-dot"></div>
-        <div class="map-marker-label">Iron Coast</div>
+        <div class="map-marker-dot" style="animation-delay:-0.47s"></div>
+        <div class="map-marker-label">Frostport Lighthouse</div>
       </div>
 
-      <div class="map-marker" data-x="33" data-y="71" data-cat="territories"
-           data-region="The Southern Reach"
-           data-lore="Written last, in a style no scholar can agree upon. The author, whoever they were, appears to have been fluent in a language that does not exist."
-           data-detail="Final age territory. Authorship unresolved."
+      <div class="map-marker" data-x="51" data-y="11" data-cat="territories"
+           data-region="Holmgarde"
+           data-lore="The principal settlement of the northern territories. Its name appears in records predating the city's known founding by several centuries. No one has satisfactorily explained this."
+           data-detail="Major City — Northern territories"
            style="display:none">
-        <div class="map-marker-dot"></div>
-        <div class="map-marker-label">Southern Reach</div>
+        <div class="map-marker-dot" style="animation-delay:-0.70s"></div>
+        <div class="map-marker-label">Holmgarde</div>
       </div>
 
-      <div class="map-marker" data-x="55" data-y="68" data-cat="events"
-           data-region="The Dormalan Interior"
-           data-lore="The Dormalan Suzereign passed through here. Three separate accounts record three separate events on the same day. All three are probably true."
-           data-detail="The Suzereign's path is documented but not explained. The contradiction is a feature, not an error."
+      <div class="map-marker" data-x="44" data-y="40" data-cat="territories"
+           data-region="Atmon, City of Temples"
+           data-lore="A city defined not by its commerce or politics, but by its accumulation of sacred sites. Scholars cannot agree on what any of the temples were built to honour — or whether honour was the right word."
+           data-detail="Major City — Central territories"
            style="display:none">
-        <div class="map-marker-dot"></div>
-        <div class="map-marker-label">Dormalan Interior</div>
+        <div class="map-marker-dot" style="animation-delay:-0.93s"></div>
+        <div class="map-marker-label">Atmon</div>
+      </div>
+
+      <div class="map-marker" data-x="57" data-y="40" data-cat="territories"
+           data-region="Kadeshra"
+           data-lore="Located at the intersection of three major trade routes that no longer exist. Its continued prosperity is considered something of a historical anomaly by every age that encountered it."
+           data-detail="Major City — Central territories"
+           style="display:none">
+        <div class="map-marker-dot" style="animation-delay:-1.17s"></div>
+        <div class="map-marker-label">Kadeshra</div>
+      </div>
+
+      <div class="map-marker" data-x="49" data-y="53" data-cat="territories"
+           data-region="Thulmola, the Twin Cities"
+           data-lore="Two cities sharing one administrative structure that have never agreed on which of them is the primary settlement. The bridge between them has been destroyed and rebuilt more often than either city itself."
+           data-detail="Major City — Central territories"
+           style="display:none">
+        <div class="map-marker-dot" style="animation-delay:-1.40s"></div>
+        <div class="map-marker-label">Thulmola</div>
+      </div>
+
+      <div class="map-marker" data-x="66" data-y="52" data-cat="territories"
+           data-region="Candabor, City of Sluices"
+           data-lore="Built around water management infrastructure that predates the city by at least two ages. The original engineers are unknown. The city grew around systems it did not design and cannot fully explain."
+           data-detail="Major City — Eastern territories"
+           style="display:none">
+        <div class="map-marker-dot" style="animation-delay:-1.63s"></div>
+        <div class="map-marker-label">Candabor</div>
+      </div>
+
+      <div class="map-marker" data-x="75" data-y="64" data-cat="territories"
+           data-region="The Dam City of Aguagello"
+           data-lore="Built into and around a dam of unknown origin. The city's entire economy depends on controlling what flows through and what is held back. The dam predates the city by an age no one can name."
+           data-detail="Major City — South-eastern territories"
+           style="display:none">
+        <div class="map-marker-dot" style="animation-delay:-1.87s"></div>
+        <div class="map-marker-label">Aguagello</div>
+      </div>
+
+      <div class="map-marker" data-x="37" data-y="38" data-cat="lore"
+           data-region="Ancient Sarabon Mountain Temples"
+           data-lore="The oldest religious architecture in the known world. Built by a culture that left no other evidence of its existence — no graves, no tools, no descendant languages. Only the temples."
+           data-detail="Major Natural Landmark — Central mountain range"
+           style="display:none">
+        <div class="map-marker-dot" style="animation-delay:-2.10s"></div>
+        <div class="map-marker-label">Sarabon Temples</div>
+      </div>
+
+      <div class="map-marker" data-x="61" data-y="30" data-cat="events"
+           data-region="Gates of Priam"
+           data-lore="A monumental gateway whose construction predates reliable historical record. It has been captured, contested, and destroyed at least once in every age. Each rebuilding changes what the gate is for."
+           data-detail="Major Structure — Upper eastern territories"
+           style="display:none">
+        <div class="map-marker-dot" style="animation-delay:-2.33s"></div>
+        <div class="map-marker-label">Gates of Priam</div>
+      </div>
+
+      <div class="map-marker" data-x="46" data-y="57" data-cat="lore"
+           data-region="The Gateway Oasis"
+           data-lore="The only significant water source in a region that all major trade routes have historically avoided. Its name suggests it was once more frequented. What changed is not recorded."
+           data-detail="Major Natural Landmark — Desert territories"
+           style="display:none">
+        <div class="map-marker-dot" style="animation-delay:-2.57s"></div>
+        <div class="map-marker-label">Gateway Oasis</div>
       </div>
 
       <!-- Zoom controls (bottom-left) -->
